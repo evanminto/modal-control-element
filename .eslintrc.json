@@ -1,0 +1,35 @@
+{
+  "env": {
+      "browser": true,
+      "es2022": true,
+      "node": true
+  },
+  "extends": ["prettier", "eslint:recommended"],
+  "plugins": ["prettier"],
+  "globals": {
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
+  },
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+      "ecmaVersion": 2022,
+      "sourceType": "module",
+      "babelOptions": {
+          "plugins": [
+              "@babel/plugin-syntax-import-assertions"
+          ]
+      }
+  },
+  "rules": {
+      "prettier/prettier": "error",
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]
+  },
+  "overrides": [
+      {
+          "files": ["**/*.test.js"],
+          "env": {
+              "jest": true
+          }
+      }
+  ]
+}

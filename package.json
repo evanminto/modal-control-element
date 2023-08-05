@@ -1,0 +1,35 @@
+{
+  "name": "@evanminto/modal-control-element",
+  "version": "0.0.1",
+  "description": "Custom Element that turns a button into a control for a modal <dialog> element",
+  "main": "src/index.js",
+  "repository": "git@github.com:evanminto/modal-control-element.git",
+  "author": "Evan Minto <evan.minto@gmail.com>",
+  "license": "MIT",
+  "targets": {
+    "default": {
+      "source": "src/index.js",
+      "outputFormat": "esmodule",
+      "distDir": "dist/",
+      "isLibrary": true
+    },
+    "global": {
+      "source": "src/global.js",
+      "outputFormat": "global",
+      "distDir": "dist/"
+    }
+  },
+  "scripts": {
+    "build": "parcel build",
+    "test": "eslint && tsc --p ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@babel/eslint-parser": "^7.22.9",
+    "@babel/plugin-syntax-import-assertions": "^7.22.5",
+    "eslint": "^8.46.0",
+    "eslint-prettier": "^0.0.0-empty",
+    "parcel": "^2.9.3",
+    "prettier": "^3.0.1",
+    "typescript": "^5.1.6"
+  }
+}
