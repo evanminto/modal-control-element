@@ -3,6 +3,28 @@ Tiny, framework-agnostic, dependency-free Custom Element that turns a button
 into a control for a modal &lt;dialog> element. Inspired by the native Popover
 API.
 
+## Installation
+
+```sh
+npm install @evanminto/modal-control-element --save
+```
+
+### HTML
+
+```html
+<script src="path/to/@evanminto/modal-control-element/dist/global.js" defer>
+```
+
+### ES Modules
+
+You can also load the component directly in your JavaScript, which allows you to define your own custom name for the element or control the timing of module loading and custom element definition.
+
+```js
+import { ModalControlElement } from '@evanminto/modal-control-element';
+
+customElement.define('modal-control-element', ModalControlElement);
+```
+
 ## Usage
 
 Wrap a `<modal-control>` element around a `<button>` or `<input type="button">`
