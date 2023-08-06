@@ -8,7 +8,7 @@
 export default class ModalControlElement extends HTMLElement {
   /** @type {string|null} */
   #target = null;
-  /** @type {string|null} */
+  /** @type {'toggle'|'show'|'hide'} */
   #targetAction = 'toggle';
 
   static observedAttributes = ['target', 'target-action'];
@@ -28,7 +28,10 @@ export default class ModalControlElement extends HTMLElement {
     }
   }
 
-  /** @type {string|null} */
+  /**
+   * ID of the target `<dialog>`
+   * @type {string|null}
+   */
   get target() {
     return this.#target;
   }
@@ -43,12 +46,19 @@ export default class ModalControlElement extends HTMLElement {
     }
   }
 
-  /** @type {string|null} */
+  /**
+   * What should happen to the dialog when clicking the control (default: 'toggle')
+   * @type {'toggle'|'show'|'hide'}
+   */
   get targetAction() {
     return this.#targetAction;
   }
 
   set targetAction(value) {
+    if (!value) {
+      return;
+    }
+
     this.#targetAction = value;
 
     if (value === null) {

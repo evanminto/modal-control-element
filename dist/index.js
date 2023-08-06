@@ -6,7 +6,7 @@
  * @fires modal-control-toggle
  */ class $9f887c14bb5fffd1$export$2e2bcd8739ae039 extends HTMLElement {
     /** @type {string|null} */ #target = null;
-    /** @type {string|null} */ #targetAction = "toggle";
+    /** @type {'toggle'|'show'|'hide'} */ #targetAction = "toggle";
     static observedAttributes = [
         "target",
         "target-action"
@@ -19,7 +19,10 @@
         if (name === "target") this.#target = newVal;
         if (name === "target-action") this.#targetAction = newVal;
     }
-    /** @type {string|null} */ get target() {
+    /**
+   * ID of the target `<dialog>`
+   * @type {string|null}
+   */ get target() {
         return this.#target;
     }
     set target(value) {
@@ -27,10 +30,14 @@
         if (value === null) this.removeAttribute("target");
         else this.setAttribute("target", value);
     }
-    /** @type {string|null} */ get targetAction() {
+    /**
+   * What should happen to the dialog when clicking the control (default: 'toggle')
+   * @type {'toggle'|'show'|'hide'}
+   */ get targetAction() {
         return this.#targetAction;
     }
     set targetAction(value) {
+        if (!value) return;
         this.#targetAction = value;
         if (value === null) this.removeAttribute("target-action");
         else this.setAttribute("target-action", value);
