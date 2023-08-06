@@ -1,7 +1,7 @@
 /**
  * @customElement modal-control
  * @attr target - ID of the target `<dialog>`
- * @attr {'toggle'|'show'|'hide'} target-action - What should happen to the dialog when clicking the control
+ * @attr {'toggle'|'show'|'hide'} target-action - What should happen to the dialog when clicking the control (default: 'toggle')
  * @fires modal-control-before-toggle
  * @fires modal-control-toggle
  */
@@ -9,7 +9,7 @@ export default class ModalControlElement extends HTMLElement {
   /** @type {string|null} */
   #target = null;
   /** @type {string|null} */
-  #targetAction = null;
+  #targetAction = 'toggle';
 
   static observedAttributes = ['target', 'target-action'];
 

@@ -20,14 +20,17 @@
     }
   },
   "scripts": {
+    "watch": "parcel",
     "build": "parcel build",
-    "test": "eslint && tsc --p ./tsconfig.json"
+    "test": "eslint && tsc --p ./tsconfig.json",
+    "demo-server": "http-server ."
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.22.9",
     "@babel/plugin-syntax-import-assertions": "^7.22.5",
     "eslint": "^8.46.0",
     "eslint-prettier": "^0.0.0-empty",
+    "http-server": "^14.1.1",
     "parcel": "^2.9.3",
     "prettier": "^3.0.1",
     "typescript": "^5.1.6"

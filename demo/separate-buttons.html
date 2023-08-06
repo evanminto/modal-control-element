@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Modal Control Element: Separate Buttons</title>
+    <script src="../dist/global.js" defer=""></script>
+  </head>
+  <body>
+    <modal-control target="modal" target-action="show">
+      <button>Show</button>
+    </modal-control>
+
+    <dialog id="modal">
+      <p>Dialog Content</p>
+
+      <modal-control target="modal" target-action="hide">
+        <button>Hide</button>
+      </modal-control>
+    </dialog>
+  </body>
+</html>
