@@ -22,7 +22,7 @@ You can also load the component directly in your JavaScript, which allows you to
 ```js
 import { ModalControlElement } from '@evanminto/modal-control-element';
 
-customElement.define('modal-control-element', ModalControlElement);
+customElements.define('modal-control-element', ModalControlElement);
 ```
 
 ## Usage
