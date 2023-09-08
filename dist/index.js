@@ -1,23 +1,34 @@
 /**
- * @customElement modal-control
- * @attr target - ID of the target `<dialog>`
- * @attr {'toggle'|'show'|'hide'} target-action - What should happen to the dialog when clicking the control (default: 'toggle')
- * @fires modal-control-before-toggle
- * @fires modal-control-toggle
- */ class $9f887c14bb5fffd1$export$2e2bcd8739ae039 extends HTMLElement {
-    /** @type {string|null} */ #target = null;
-    /** @type {'toggle'|'show'|'hide'} */ #targetAction = "toggle";
+ * @param {MouseEvent}  event
+ * @param {HTMLElement} element
+ * @returns {boolean}
+ */ function $a4743415ed687ae4$export$2e2bcd8739ae039(event, element) {
+    const { target: target, offsetX: offsetX, offsetY: offsetY } = event;
+    return offsetX >= 0 && offsetX <= element.offsetWidth && offsetY >= 0 && offsetY <= element.offsetHeight;
+}
+
+
+class $9f887c14bb5fffd1$export$2e2bcd8739ae039 extends HTMLElement {
+    /** @type {string | null} */ #target = null;
+    /** @type {'toggle' | 'show' | 'hide'} */ #targetAction = "toggle";
+    /** @type {boolean} */ #lightDismiss = false;
     static observedAttributes = [
         "target",
-        "target-action"
+        "target-action",
+        "light-dismiss"
     ];
     /**
    * @param {string}  name
-   * @param {string}     _oldVal
-   * @param {string}     newVal
+   * @param {string | undefined}     _oldVal
+   * @param {string | undefined}     newVal
    */ attributeChangedCallback(name, _oldVal, newVal) {
-        if (name === "target") this.#target = newVal;
-        if (name === "target-action") this.#targetAction = newVal;
+        if (name === "target") this.#target = newVal || null;
+        if (name === "target-action" && newVal && [
+            "toggle",
+            "show",
+            "hide"
+        ].includes(newVal)) this.#targetAction = /** @type {'toggle' | 'show' | 'hide'} */ newVal;
+        if (name === "light-dismiss") this.#lightDismiss = newVal !== undefined;
     }
     /**
    * ID of the target `<dialog>`
@@ -41,6 +52,17 @@
         this.#targetAction = value;
         if (value === null) this.removeAttribute("target-action");
         else this.setAttribute("target-action", value);
+    }
+    /**
+   * Determines how the user can close the target modal
+   * @type {boolean}
+   */ get lightDismiss() {
+        return this.#lightDismiss;
+    }
+    set lightDismiss(value) {
+        this.#lightDismiss = Boolean(value);
+        if (this.#lightDismiss) this.setAttribute("light-dismiss", "");
+        else this.removeAttribute("light-dismiss");
     }
     /** @type {HTMLDialogElement|null} */ get targetElement() {
         const root = /** @type {Document|ShadowRoot} */ this.getRootNode();
@@ -74,6 +96,7 @@
             case "show":
                 if (!targetElement.open && this.#dispatchBeforeToggle()) {
                     targetElement.showModal();
+                    if (this.lightDismiss) this.#listenOnClickOutside(targetElement);
                     this.#dispatchToggle();
                 }
                 break;
@@ -86,11 +109,49 @@
             case "toggle":
                 if (this.#dispatchBeforeToggle()) {
                     if (targetElement.open) targetElement.close();
-                    else targetElement.showModal();
+                    else {
+                        targetElement.showModal();
+                        if (this.lightDismiss) this.#listenOnClickOutside(targetElement);
+                    }
                     this.#dispatchToggle();
                 }
         }
     };
+    /**
+   * @param {MouseEvent & { target: HTMLDialogElement }} event
+   */ #handleClickTarget = (event)=>{
+        const { targetElement: targetElement } = this;
+        if (targetElement && !(0, $a4743415ed687ae4$export$2e2bcd8739ae039)(event, targetElement)) targetElement.close();
+    };
+    /**
+   * @param {MouseEvent & { target: HTMLDialogElement }} event
+   */ #handleClickRoot = (event)=>{
+        const { targetElement: targetElement } = this;
+        if (targetElement && !targetElement.contains(event.target)) targetElement.close();
+    };
+    /**
+   * @param {Event & { target: HTMLDialogElement }} event
+   */ #handleCloseTarget = (event)=>{
+        // @ts-ignore
+        event.target.removeEventListener("click", this.#handleClickTarget);
+        // @ts-ignore
+        event.target.getRootNode().removeEventListener("click", this.#handleClickRoot);
+        // @ts-ignore
+        event.target.removeEventListener("close", this.#handleCloseTarget);
+    };
+    /**
+   * @param {HTMLDialogElement | null} dialog
+   */ #listenOnClickOutside(dialog) {
+        if (!dialog) return;
+        // @ts-ignore
+        dialog.addEventListener("click", this.#handleClickTarget);
+        setTimeout(()=>{
+            // @ts-ignore
+            dialog.getRootNode().addEventListener("click", this.#handleClickRoot);
+            // @ts-ignore
+            dialog.addEventListener("close", this.#handleCloseTarget);
+        }, 0);
+    }
 }
 
 

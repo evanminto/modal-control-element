@@ -1,3 +1,5 @@
+import isEventInsideElement from "./isEventInsideElement.js";
+
 /**
  * @customElement modal-control
  * @attr target - ID of the target `<dialog>`
@@ -6,25 +8,35 @@
  * @fires modal-control-toggle
  */
 export default class ModalControlElement extends HTMLElement {
-  /** @type {string|null} */
+  /** @type {string | null} */
   #target = null;
-  /** @type {'toggle'|'show'|'hide'} */
+  /** @type {'toggle' | 'show' | 'hide'} */
   #targetAction = 'toggle';
+  /** @type {boolean} */
+  #lightDismiss = false;
 
-  static observedAttributes = ['target', 'target-action'];
+  static observedAttributes = ['target', 'target-action', 'light-dismiss'];
 
   /**
    * @param {string}  name
-   * @param {string}     _oldVal
-   * @param {string}     newVal
+   * @param {string | undefined}     _oldVal
+   * @param {string | undefined}     newVal
    */
   attributeChangedCallback(name, _oldVal, newVal) {
     if (name === 'target') {
-      this.#target = newVal;
+      this.#target = newVal || null;
     }
 
-    if (name === 'target-action') {
-      this.#targetAction = newVal;
+    if (
+      name === 'target-action' &&
+      newVal &&
+      ['toggle', 'show', 'hide'].includes(newVal)
+    ) {
+      this.#targetAction = /** @type {'toggle' | 'show' | 'hide'} */ (newVal);
+    }
+
+    if (name === 'light-dismiss') {
+      this.#lightDismiss = newVal !== undefined;
     }
   }
 
@@ -65,6 +77,24 @@ export default class ModalControlElement extends HTMLElement {
       this.removeAttribute('target-action');
     } else {
       this.setAttribute('target-action', value);
+    }
+  }
+
+  /**
+   * Determines how the user can close the target modal
+   * @type {boolean}
+   */
+  get lightDismiss() {
+    return this.#lightDismiss;
+  }
+
+  set lightDismiss(value) {
+    this.#lightDismiss = Boolean(value);
+
+    if (this.#lightDismiss) {
+      this.setAttribute('light-dismiss', '');
+    } else {
+      this.removeAttribute('light-dismiss');
     }
   }
 
@@ -121,6 +151,11 @@ export default class ModalControlElement extends HTMLElement {
       case 'show':
         if (!targetElement.open && this.#dispatchBeforeToggle()) {
           targetElement.showModal();
+
+          if (this.lightDismiss) {
+            this.#listenOnClickOutside(targetElement);
+          }
+
           this.#dispatchToggle();
         }
         break;
@@ -136,10 +171,67 @@ export default class ModalControlElement extends HTMLElement {
             targetElement.close();
           } else {
             targetElement.showModal();
+
+            if (this.lightDismiss) {
+              this.#listenOnClickOutside(targetElement);
+            }
           }
 
           this.#dispatchToggle();
         }
     }
   };
+
+  /**
+   * @param {MouseEvent & { target: HTMLDialogElement }} event
+   */
+  #handleClickTarget = (event) => {
+    const { targetElement } = this;
+
+    if (targetElement && !isEventInsideElement(event, targetElement)) {
+      targetElement.close();
+    }
+  }
+
+  /**
+   * @param {MouseEvent & { target: HTMLDialogElement }} event
+   */
+  #handleClickRoot = (event) => {
+    const { targetElement } = this;
+
+    if (targetElement && !targetElement.contains(event.target)) {
+      targetElement.close();
+    }
+  }
+
+  /**
+   * @param {Event & { target: HTMLDialogElement }} event
+   */
+  #handleCloseTarget = (event) => {
+    // @ts-ignore
+    event.target.removeEventListener('click', this.#handleClickTarget);
+    // @ts-ignore
+    event.target.getRootNode().removeEventListener('click', this.#handleClickRoot);
+    // @ts-ignore
+    event.target.removeEventListener('close', this.#handleCloseTarget);
+  };
+
+  /**
+   * @param {HTMLDialogElement | null} dialog
+   */
+  #listenOnClickOutside(dialog) {
+    if (!dialog) {
+      return;
+    }
+
+    // @ts-ignore
+    dialog.addEventListener('click', this.#handleClickTarget);
+
+    setTimeout(() => {
+      // @ts-ignore
+      dialog.getRootNode().addEventListener('click', this.#handleClickRoot);
+      // @ts-ignore
+      dialog.addEventListener('close', this.#handleCloseTarget);
+    }, 0);
+  }
 }
