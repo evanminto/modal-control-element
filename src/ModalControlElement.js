@@ -188,8 +188,9 @@ export default class ModalControlElement extends HTMLElement {
   #handleClickTarget = (event) => {
     const { targetElement } = this;
 
-    if (targetElement && !isEventInsideElement(event, targetElement)) {
+    if (targetElement && !isEventInsideElement(event, targetElement) && this.#dispatchBeforeToggle()) {
       targetElement.close();
+      this.#dispatchToggle();
     }
   }
 
@@ -199,8 +200,9 @@ export default class ModalControlElement extends HTMLElement {
   #handleClickRoot = (event) => {
     const { targetElement } = this;
 
-    if (targetElement && !targetElement.contains(event.target)) {
+    if (targetElement && !targetElement.contains(event.target) && this.#dispatchBeforeToggle()) {
       targetElement.close();
+      this.#dispatchToggle();
     }
   }
 

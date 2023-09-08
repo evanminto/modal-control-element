@@ -121,13 +121,19 @@ class $9f887c14bb5fffd1$export$2e2bcd8739ae039 extends HTMLElement {
    * @param {MouseEvent & { target: HTMLDialogElement }} event
    */ #handleClickTarget = (event)=>{
         const { targetElement: targetElement } = this;
-        if (targetElement && !(0, $a4743415ed687ae4$export$2e2bcd8739ae039)(event, targetElement)) targetElement.close();
+        if (targetElement && !(0, $a4743415ed687ae4$export$2e2bcd8739ae039)(event, targetElement) && this.#dispatchBeforeToggle()) {
+            targetElement.close();
+            this.#dispatchToggle();
+        }
     };
     /**
    * @param {MouseEvent & { target: HTMLDialogElement }} event
    */ #handleClickRoot = (event)=>{
         const { targetElement: targetElement } = this;
-        if (targetElement && !targetElement.contains(event.target)) targetElement.close();
+        if (targetElement && !targetElement.contains(event.target) && this.#dispatchBeforeToggle()) {
+            targetElement.close();
+            this.#dispatchToggle();
+        }
     };
     /**
    * @param {Event & { target: HTMLDialogElement }} event

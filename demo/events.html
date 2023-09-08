@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Modal Control Element: Separate Buttons</title>
+    <script src="../dist/global.js" defer=""></script>
+  </head>
+  <body>
+    <modal-control target="modal" light-dismiss>
+      <button>Toggle</button>
+    </modal-control>
+
+    <modal-control target="modal" target-action="show">
+      <button>Show</button>
+    </modal-control>
+
+    <dialog id="modal">
+      <p>Dialog Content</p>
+
+      <modal-control target="modal" target-action="hide">
+        <button>Hide</button>
+      </modal-control>
+    </dialog>
+
+    <script>
+      document.querySelectorAll('modal-control').forEach(control => {
+        control.addEventListener(
+          'modal-control-before-toggle',
+          event => console.log('modal-control-before-toggle', event)
+        );
+        control.addEventListener(
+          'modal-control-toggle',
+          event => console.log('modal-control-toggle', event)
+        );
+      });
+    </script>
+  </body>
+</html>
