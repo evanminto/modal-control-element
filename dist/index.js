@@ -6,7 +6,10 @@
     const { clientX: clientX, clientY: clientY } = event;
     const target = /** @type {HTMLElement} */ event.target;
     const { x: x, y: y, width: width, height: height } = element.getBoundingClientRect();
-    return element.contains(target) || clientX >= x && clientX <= x + width && clientY >= y && clientY <= y + height;
+    return(// Is target nested inside element?
+    element.contains(target) || // If not, was the click inside the bounding box? (Note: Clicks triggered
+    // via keyboard focus/spacebar will have clientX and clientY set to 0)
+    clientX >= x && clientX <= x + width && clientY >= y && clientY <= y + height);
 }
 
 
