@@ -3,8 +3,10 @@
  * @param {HTMLElement} element
  * @returns {boolean}
  */ function $a4743415ed687ae4$export$2e2bcd8739ae039(event, element) {
-    const { target: target, offsetX: offsetX, offsetY: offsetY } = event;
-    return offsetX >= 0 && offsetX <= element.offsetWidth && offsetY >= 0 && offsetY <= element.offsetHeight;
+    const { clientX: clientX, clientY: clientY } = event;
+    const target = /** @type {HTMLElement} */ event.target;
+    const { x: x, y: y, width: width, height: height } = element.getBoundingClientRect();
+    return element.contains(target) || clientX >= x && clientX <= x + width && clientY >= y && clientY <= y + height;
 }
 
 

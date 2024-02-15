@@ -4,10 +4,20 @@
  * @returns {boolean}
  */
 export default function isEventInsideElement(event, element) {
-  const { target, offsetX, offsetY } = event;
+  const { clientX, clientY} = event;
+  const target = /** @type {HTMLElement} */ (event.target);
+  const { x, y, width, height } = element.getBoundingClientRect();
 
   return (
-    offsetX >= 0 && offsetX <= element.offsetWidth &&
-    offsetY >= 0 && offsetY <= element.offsetHeight
+    // Is target nested inside element?
+    element.contains(target) ||
+    // If not, was the click inside the bounding box? (Note: Clicks triggered
+    // via keyboard focus/spacebar will have clientX and clientY set to 0)
+    (
+      clientX >= x &&
+      clientX <= x + width &&
+      clientY >= y &&
+      clientY <= y + height
+    )
   );
 }
