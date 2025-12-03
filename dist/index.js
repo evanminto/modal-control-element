@@ -35,14 +35,14 @@ class $7d0ee5e0ea3ca1f6$export$2e2bcd8739ae039 {
         if (this.#options.lightDismiss) {
             this.#dialog.addEventListener("click", (event)=>{
                 if (!(event instanceof MouseEvent) || (0, $a4743415ed687ae4$export$2e2bcd8739ae039)(event, this.#dialog)) return;
-                this.#dialog.close();
+                this.hide();
             }, {
                 signal: abortController.signal
             });
             setTimeout(()=>{
                 this.#dialog.getRootNode().addEventListener("click", (event)=>{
-                    if (!(event.target instanceof Node) || !this.#dialog.contains(event.target)) return;
-                    this.#dialog.close();
+                    if (!(event.target instanceof Node) || this.#dialog.contains(event.target)) return;
+                    this.hide();
                 }, {
                     signal: abortController.signal
                 });

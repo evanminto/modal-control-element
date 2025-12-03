@@ -5,10 +5,26 @@
     <meta name="viewport" content="width=device-width">
     <title>Modal Control Element: Separate Buttons</title>
     <script src="../dist/global.js" defer=""></script>
+    <script type="module">
+      let disabled = false;
+
+      [...document.querySelectorAll('modal-control')].forEach(
+        control => control.addEventListener(
+          'modal-control-before-toggle',
+          (event) => disabled ? event.preventDefault() : undefined
+        )
+      );
+
+      document.querySelector('#disable').addEventListener('change', (event) => {
+        disabled = event.target.checked;
+      });
+    </script>
   </head>
   <body>
+    <label><input type="checkbox" id="disable"> Disable</label>
+    
     <modal-control target="modal" light-dismiss>
-      <button>Toggle</button>
+      <button>Toggle (with Light Dismiss)</button>
     </modal-control>
 
     <modal-control target="modal" target-action="show">

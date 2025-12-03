@@ -39,7 +39,7 @@ export default class ModalController {
             return;
           }
 
-          this.#dialog.close();
+          this.hide();
         },
         { signal: abortController.signal }
       );
@@ -48,11 +48,11 @@ export default class ModalController {
         this.#dialog.getRootNode().addEventListener(
           'click',
           (event) => {
-            if (!(event.target instanceof Node) || !this.#dialog.contains(event.target)) {
+            if (!(event.target instanceof Node) || this.#dialog.contains(event.target)) {
               return;
             }
 
-            this.#dialog.close();
+            this.hide();
           },
           { signal: abortController.signal }
         );
