@@ -43,19 +43,7 @@ export default class ModalControlElement extends HTMLElement {
     }
 
     if (name === 'target' || name === 'light-dismiss') {
-      const root = this.getRootNode();
-      const { targetElement } = this;
-
-      if (
-        targetElement instanceof HTMLDialogElement &&
-        (root instanceof Document || root instanceof ShadowRoot)
-      ) {
-        this.#controller = new ModalController(targetElement, {
-          lightDismiss: this.#lightDismiss,
-          canToggle: () => this.#dispatchBeforeToggle(),
-          onToggle: () => this.#dispatchToggle(),
-        });
-      }
+      this.#initController();
     }
   }
 
@@ -131,10 +119,23 @@ export default class ModalControlElement extends HTMLElement {
 
   connectedCallback() {
     this.addEventListener('click', this.#handleClick);
+    this.#initController();
   }
 
   disconnectedCallback() {
     this.removeEventListener('click', this.#handleClick);
+  }
+
+  #initController() {
+    const root = this.getRootNode();
+
+    if (root instanceof Document || root instanceof ShadowRoot) {
+      this.#controller = new ModalController(() => this.targetElement, {
+        lightDismiss: this.#lightDismiss,
+        canToggle: () => this.#dispatchBeforeToggle(),
+        onToggle: () => this.#dispatchToggle(),
+      });
+    }
   }
 
   /** @returns {boolean} */

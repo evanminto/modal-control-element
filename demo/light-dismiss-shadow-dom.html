@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Modal Control Element: Basic</title>
+    <script src="../dist/global.js" defer=""></script>
+  </head>
+  <body>
+    <div>
+      <template shadowrootmode="open">
+        <modal-control target="modal" light-dismiss>
+          <button>Toggle</button>
+        </modal-control>
+
+        <dialog id="modal">Dialog Content</dialog>
+      </template>
+    </div>
+
+    <button>Outside shadow DOM</button>
+  </body>
+</html>

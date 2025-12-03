@@ -9,33 +9,34 @@ import isEventInsideElement from "./isEventInsideElement.js";
  */
 
 export default class ModalController {
-  #dialog;
+  #dialogOrGetter;
   #options;
   
   /**
-   * @param {HTMLDialogElement} dialog
+   * @param {HTMLDialogElement | (() => HTMLDialogElement?)} dialog Element or getter
    * @param {ModalOptions} [options]
    */
   constructor(dialog, options) {
     const defaultOptions = { canToggle: () => true };
-
-    this.#dialog = dialog;
+    this.#dialogOrGetter = dialog;
     this.#options = Object.assign(defaultOptions, options);
   }
 
   show() {
-    if (this.#dialog.matches(':modal') || !this.#options.canToggle?.()) {
+    const dialog = this.#getDialog();
+
+    if (!dialog || dialog.matches(':modal') || !this.#options.canToggle?.()) {
       return;
     }
     
     const abortController = new AbortController();
-    this.#dialog.showModal();
+    dialog.showModal();
 
     if (this.#options.lightDismiss) {
-      this.#dialog.addEventListener(
+      dialog.addEventListener(
         'click',
         (event) => {
-          if (!(event instanceof MouseEvent) || isEventInsideElement(event, this.#dialog)) {
+          if (!(event instanceof MouseEvent) || isEventInsideElement(event, dialog)) {
             return;
           }
 
@@ -45,10 +46,10 @@ export default class ModalController {
       );
 
       setTimeout(() => {
-        this.#dialog.getRootNode().addEventListener(
+        dialog.getRootNode({ composed: true }).addEventListener(
           'click',
           (event) => {
-            if (!(event.target instanceof Node) || this.#dialog.contains(event.target)) {
+            if (!(event.target instanceof Node) || dialog.contains(event.target)) {
               return;
             }
 
@@ -57,7 +58,7 @@ export default class ModalController {
           { signal: abortController.signal }
         );
 
-        this.#dialog.addEventListener(
+        dialog.addEventListener(
           'close',
           () => abortController.abort(),
           { signal: abortController.signal }
@@ -69,19 +70,29 @@ export default class ModalController {
   }
 
   hide() {
-    if (this.#dialog.matches(':not(:modal)') || !this.#options.canToggle?.()) {
+    const dialog = this.#getDialog();
+
+    if (!dialog || dialog.matches(':not(:modal)') || !this.#options.canToggle?.()) {
       return;
     }
 
-    this.#dialog.close();
+    dialog.close();
     this.#options.onToggle?.();
   }
 
   toggle() {
-    if (this.#dialog.matches(':modal')) {
+    if (this.#getDialog()?.matches(':modal')) {
       this.hide();
     } else {
       this.show();
     }
+  }
+
+  #getDialog() {
+    if (typeof this.#dialogOrGetter === 'function') {
+      return this.#dialogOrGetter();
+    }
+
+    return this.#dialogOrGetter;
   }
 }

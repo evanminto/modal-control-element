@@ -16,37 +16,40 @@
 
 
 class $7d0ee5e0ea3ca1f6$export$2e2bcd8739ae039 {
-    #dialog;
+    #dialogOrGetter;
     #options;
     /**
-   * @param {HTMLDialogElement} dialog
+   * @param {HTMLDialogElement | (() => HTMLDialogElement?)} dialog Element or getter
    * @param {ModalOptions} [options]
    */ constructor(dialog, options){
         const defaultOptions = {
             canToggle: ()=>true
         };
-        this.#dialog = dialog;
+        this.#dialogOrGetter = dialog;
         this.#options = Object.assign(defaultOptions, options);
     }
     show() {
-        if (this.#dialog.matches(":modal") || !this.#options.canToggle?.()) return;
+        const dialog = this.#getDialog();
+        if (!dialog || dialog.matches(":modal") || !this.#options.canToggle?.()) return;
         const abortController = new AbortController();
-        this.#dialog.showModal();
+        dialog.showModal();
         if (this.#options.lightDismiss) {
-            this.#dialog.addEventListener("click", (event)=>{
-                if (!(event instanceof MouseEvent) || (0, $a4743415ed687ae4$export$2e2bcd8739ae039)(event, this.#dialog)) return;
+            dialog.addEventListener("click", (event)=>{
+                if (!(event instanceof MouseEvent) || (0, $a4743415ed687ae4$export$2e2bcd8739ae039)(event, dialog)) return;
                 this.hide();
             }, {
                 signal: abortController.signal
             });
             setTimeout(()=>{
-                this.#dialog.getRootNode().addEventListener("click", (event)=>{
-                    if (!(event.target instanceof Node) || this.#dialog.contains(event.target)) return;
+                dialog.getRootNode({
+                    composed: true
+                }).addEventListener("click", (event)=>{
+                    if (!(event.target instanceof Node) || dialog.contains(event.target)) return;
                     this.hide();
                 }, {
                     signal: abortController.signal
                 });
-                this.#dialog.addEventListener("close", ()=>abortController.abort(), {
+                dialog.addEventListener("close", ()=>abortController.abort(), {
                     signal: abortController.signal
                 });
             }, 0);
@@ -54,13 +57,18 @@ class $7d0ee5e0ea3ca1f6$export$2e2bcd8739ae039 {
         this.#options.onToggle?.();
     }
     hide() {
-        if (this.#dialog.matches(":not(:modal)") || !this.#options.canToggle?.()) return;
-        this.#dialog.close();
+        const dialog = this.#getDialog();
+        if (!dialog || dialog.matches(":not(:modal)") || !this.#options.canToggle?.()) return;
+        dialog.close();
         this.#options.onToggle?.();
     }
     toggle() {
-        if (this.#dialog.matches(":modal")) this.hide();
+        if (this.#getDialog()?.matches(":modal")) this.hide();
         else this.show();
+    }
+    #getDialog() {
+        if (typeof this.#dialogOrGetter === "function") return this.#dialogOrGetter();
+        return this.#dialogOrGetter;
     }
 }
 
@@ -87,15 +95,7 @@ class $9f887c14bb5fffd1$export$2e2bcd8739ae039 extends HTMLElement {
             "hide"
         ].includes(newVal)) this.#targetAction = /** @type {'toggle' | 'show' | 'hide'} */ newVal;
         if (name === "light-dismiss") this.#lightDismiss = newVal !== undefined;
-        if (name === "target" || name === "light-dismiss") {
-            const root = this.getRootNode();
-            const { targetElement: targetElement } = this;
-            if (targetElement instanceof HTMLDialogElement && (root instanceof Document || root instanceof ShadowRoot)) this.#controller = new (0, $7d0ee5e0ea3ca1f6$export$2e2bcd8739ae039)(targetElement, {
-                lightDismiss: this.#lightDismiss,
-                canToggle: ()=>this.#dispatchBeforeToggle(),
-                onToggle: ()=>this.#dispatchToggle()
-            });
-        }
+        if (name === "target" || name === "light-dismiss") this.#initController();
     }
     /**
    * ID of the target `<dialog>`
@@ -139,9 +139,18 @@ class $9f887c14bb5fffd1$export$2e2bcd8739ae039 extends HTMLElement {
     }
     connectedCallback() {
         this.addEventListener("click", this.#handleClick);
+        this.#initController();
     }
     disconnectedCallback() {
         this.removeEventListener("click", this.#handleClick);
+    }
+    #initController() {
+        const root = this.getRootNode();
+        if (root instanceof Document || root instanceof ShadowRoot) this.#controller = new (0, $7d0ee5e0ea3ca1f6$export$2e2bcd8739ae039)(()=>this.targetElement, {
+            lightDismiss: this.#lightDismiss,
+            canToggle: ()=>this.#dispatchBeforeToggle(),
+            onToggle: ()=>this.#dispatchToggle()
+        });
     }
     /** @returns {boolean} */ #dispatchBeforeToggle() {
         return this.dispatchEvent(new Event("modal-control-before-toggle", {

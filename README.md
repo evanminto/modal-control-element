@@ -155,7 +155,9 @@ Fires after the dialog state changes.
 
 ### dialog
 
-The `HTMLDialogElement` to control
+The `HTMLDialogElement` to control, or a function that returns it. If the dialog
+can't be found, it should return `null`, which will cause the controller to do
+nothing.
 
 ### options
 
