@@ -1,4 +1,5 @@
 import ModalControlElement from './ModalControlElement.js';
+import ModalController from './ModalController.js';
 
 /**
  * @param {string} [name]
@@ -10,4 +11,4 @@ const define = (name = 'modal-control') => {
   }
 };
 
-export { ModalControlElement, define };
+export { ModalControlElement, ModalController, define };

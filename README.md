@@ -17,7 +17,9 @@ npm install @evanminto/modal-control-element --save
 
 ### ES Modules
 
-You can also load the component directly in your JavaScript, which allows you to define your own custom name for the element or control the timing of module loading and custom element definition.
+You can also load the component directly in your JavaScript, which allows you to
+define your own custom name for the element or control the timing of module
+loading and custom element definition.
 
 ```js
 import { ModalControlElement } from '@evanminto/modal-control-element';
@@ -33,7 +35,13 @@ dialog will open as a modal, using the
 [`showModal()`](https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement/showModal)
 method.
 
-**Note:** This element does not support opening dialogs non-modally. If you need non-modal behavior, consider using the [Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API) which has a similar declarative API.
+**Note:** This element does not support opening dialogs non-modally. If you need
+non-modal behavior, consider using the
+[Popover API](https://developer.mozilla.org/en-US/docs/Web/API/Popover_API)
+which has a similar declarative API.
+
+You can also open a modal via a JS interface. This can be useful when you need
+to trigger a modal in response to a non-click user action, such as scrolling.
 
 ### Basic
 
@@ -88,7 +96,21 @@ by clicking outside the modal, add the `light-dismiss` attribute:
 Clicking the modal’s backdrop or any other element on the page will close the
 modal, but clicking inside the modal will not.
 
-## Attributes
+### Programmatic Toggling
+
+```js
+import { ModalController } from '@evanminto/modal-control-element';
+
+const controller = new ModalController(document.querySelector('dialog'), {
+  lightDismiss: true,
+});
+
+controller.show();
+controller.hide();
+controller.toggle();
+```
+
+## `<modal-control>` Attributes
 
 ### light-dismiss
 
@@ -104,7 +126,7 @@ What should happen to the dialog when clicking the control?
 
 **Values:** `toggle` (default), `show`, `hide`
 
-## Properties
+## `<modal-control>` Properties
 
 ### lightDismiss
 
@@ -118,7 +140,7 @@ Reflects the `target` attribute.
 
 Reflects the `target-action` attribute.
 
-## Events
+## `<modal-control>` Events
 
 ### modal-control-before-toggle
 
@@ -128,3 +150,40 @@ canceled.
 ### modal-control-toggle
 
 Fires after the dialog state changes.
+
+## `ModalController` Constructor Parameters
+
+### dialog
+
+The `HTMLDialogElement` to control
+
+### options
+
+#### lightDismiss
+
+Boolean. If `true`, turns on light dismiss features.
+
+#### canToggle
+
+Called before changing the modal state. Returns a boolean. If `false`, `show()`,
+`hide()`, and `toggle()` will be blocked. You can use this to intercept
+attempted modal actions, similar to `dispatchEvent()`. Optional, returns `true`
+by default.
+
+#### onToggle
+
+Called after changing the modal state.
+
+## `ModalController` Methods
+
+### show()
+
+Shows the dialog as a modal.
+
+### hide()
+
+Closes the dialog.
+
+### toggle()
+
+Switches between showing the dialog as a modal and closing.

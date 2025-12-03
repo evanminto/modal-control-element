@@ -1,9 +1,10 @@
-import isEventInsideElement from "./isEventInsideElement.js";
+import ModalController from "./ModalController.js";
 
 /**
  * @customElement modal-control
  * @attr target - ID of the target `<dialog>`
  * @attr {'toggle'|'show'|'hide'} target-action - What should happen to the dialog when clicking the control (default: 'toggle')
+ * @attr light-dismiss - If present, the modal will be closeable by clicking outside of it
  * @fires modal-control-before-toggle
  * @fires modal-control-toggle
  */
@@ -14,6 +15,8 @@ export default class ModalControlElement extends HTMLElement {
   #targetAction = 'toggle';
   /** @type {boolean} */
   #lightDismiss = false;
+  /** @type {ModalController | undefined} */
+  #controller;
 
   static observedAttributes = ['target', 'target-action', 'light-dismiss'];
 
@@ -37,6 +40,22 @@ export default class ModalControlElement extends HTMLElement {
 
     if (name === 'light-dismiss') {
       this.#lightDismiss = newVal !== undefined;
+    }
+
+    if (name === 'target' || name === 'light-dismiss') {
+      const root = this.getRootNode();
+      const { targetElement } = this;
+
+      if (
+        targetElement instanceof HTMLDialogElement &&
+        (root instanceof Document || root instanceof ShadowRoot)
+      ) {
+        this.#controller = new ModalController(targetElement, {
+          lightDismiss: this.#lightDismiss,
+          canToggle: () => this.#dispatchBeforeToggle(),
+          onToggle: () => this.#dispatchToggle(),
+        });
+      }
     }
   }
 
@@ -141,99 +160,16 @@ export default class ModalControlElement extends HTMLElement {
       return;
     }
 
-    const { targetElement } = this;
-
-    if (!targetElement) {
-      return;
-    }
-
     switch (this.targetAction) {
       case 'show':
-        if (!targetElement.open && this.#dispatchBeforeToggle()) {
-          targetElement.showModal();
-
-          if (this.lightDismiss) {
-            this.#listenOnClickOutside(targetElement);
-          }
-
-          this.#dispatchToggle();
-        }
+        this.#controller?.show();
         break;
       case 'hide':
-        if (targetElement.open && this.#dispatchBeforeToggle()) {
-          targetElement.close();
-          this.#dispatchToggle();
-        }
+        this.#controller?.hide();
         break;
       case 'toggle':
-        if (this.#dispatchBeforeToggle()) {
-          if (targetElement.open) {
-            targetElement.close();
-          } else {
-            targetElement.showModal();
-
-            if (this.lightDismiss) {
-              this.#listenOnClickOutside(targetElement);
-            }
-          }
-
-          this.#dispatchToggle();
-        }
+        this.#controller?.toggle();
+        break;
     }
   };
-
-  /**
-   * @param {MouseEvent & { target: HTMLDialogElement }} event
-   */
-  #handleClickTarget = (event) => {
-    const { targetElement } = this;
-
-    if (targetElement && !isEventInsideElement(event, targetElement) && this.#dispatchBeforeToggle()) {
-      targetElement.close();
-      this.#dispatchToggle();
-    }
-  }
-
-  /**
-   * @param {MouseEvent & { target: HTMLDialogElement }} event
-   */
-  #handleClickRoot = (event) => {
-    const { targetElement } = this;
-
-    if (targetElement && !targetElement.contains(event.target) && this.#dispatchBeforeToggle()) {
-      targetElement.close();
-      this.#dispatchToggle();
-    }
-  }
-
-  /**
-   * @param {Event & { target: HTMLDialogElement }} event
-   */
-  #handleCloseTarget = (event) => {
-    // @ts-ignore
-    event.target.removeEventListener('click', this.#handleClickTarget);
-    // @ts-ignore
-    event.target.getRootNode().removeEventListener('click', this.#handleClickRoot);
-    // @ts-ignore
-    event.target.removeEventListener('close', this.#handleCloseTarget);
-  };
-
-  /**
-   * @param {HTMLDialogElement | null} dialog
-   */
-  #listenOnClickOutside(dialog) {
-    if (!dialog) {
-      return;
-    }
-
-    // @ts-ignore
-    dialog.addEventListener('click', this.#handleClickTarget);
-
-    setTimeout(() => {
-      // @ts-ignore
-      dialog.getRootNode().addEventListener('click', this.#handleClickRoot);
-      // @ts-ignore
-      dialog.addEventListener('close', this.#handleCloseTarget);
-    }, 0);
-  }
 }
