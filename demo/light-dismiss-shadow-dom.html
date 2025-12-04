@@ -13,7 +13,17 @@
           <button>Toggle</button>
         </modal-control>
 
-        <dialog id="modal">Dialog Content</dialog>
+        <dialog id="modal">
+          <div>
+            <template shadowrootmode="open">
+              <div>
+                <template shadowrootmode="open">
+                  Dialog Content
+                </template>
+              </div>
+            </template>
+          </div>
+        </dialog>
       </template>
     </div>
 

@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "module": "esnext",
-    "moduleResolution": "node",
+    "module": "node16",
+    "moduleResolution": "node16",
     "target": "ES2022",
     "checkJs": true,
     "noEmit": true,
     "strict": true,
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": true,
+    "allowJs": true
   },
-  "include": ["**/*.js"],
-  "exclude": ["**/node_modules/**/*", "**/dist/**/*"]
+  "include": ["src/**/*.js"]
 }

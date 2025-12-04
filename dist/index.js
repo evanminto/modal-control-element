@@ -1,8 +1,24 @@
 /**
- * @param {MouseEvent}  event
- * @param {HTMLDialogElement} dialog
- * @returns {boolean}
- */ function $a4743415ed687ae4$export$2e2bcd8739ae039(event, dialog) {
+ * Checks if an ancestor node contains a descendant node, crossing shadow
+ * boundaries
+ * @param {Node} ancestor
+ * @param {Node} descendant
+ */ function $9d121dc88146ccd1$export$273cb3019e2f952c(ancestor, descendant) {
+    // First, check via normal contains (fastest, but doesn't work with shadow
+    // roots)
+    if (ancestor.contains(descendant)) return true;
+    // This could be a shadow root or a document
+    const root = descendant.getRootNode();
+    if (root instanceof ShadowRoot) // Check the host of the shadow root
+    return $9d121dc88146ccd1$export$273cb3019e2f952c(ancestor, root.host);
+    // If it's not a shadow root and contains() returned false, it's definitely
+    // not a match
+    return false;
+}
+
+
+
+function $a4743415ed687ae4$export$2e2bcd8739ae039(event, dialog) {
     const { clientX: clientX, clientY: clientY } = event;
     const target = /** @type {Node} */ event.target;
     const { x: x, y: y, width: width, height: height } = dialog.getBoundingClientRect();
@@ -11,7 +27,7 @@
     // itself, but will be outside the bounds.
     if (dialog === target) return clientX >= x && clientX <= x + width && clientY >= y && clientY <= y + height;
     // If the target isn't the dialog itself, check that it's inside the dialog
-    return dialog.contains(target);
+    return (0, $9d121dc88146ccd1$export$273cb3019e2f952c)(dialog, target);
 }
 
 
@@ -41,12 +57,28 @@ class $7d0ee5e0ea3ca1f6$export$2e2bcd8739ae039 {
                 signal: abortController.signal
             });
             setTimeout(()=>{
-                dialog.getRootNode({
-                    composed: true
-                }).addEventListener("click", (event)=>{
-                    if (!(event.target instanceof Node) || dialog.contains(event.target)) return;
+                const root = dialog.getRootNode();
+                /** @param {Event} event */ const handleClickDirectRoot = (event)=>{
+                    // If the click is inside the dialog, ignore it
+                    if (!(event instanceof MouseEvent) || (0, $a4743415ed687ae4$export$2e2bcd8739ae039)(event, dialog)) return;
                     this.hide();
-                }, {
+                };
+                if (root instanceof ShadowRoot) {
+                    root.addEventListener("click", handleClickDirectRoot, {
+                        signal: abortController.signal
+                    });
+                    dialog.getRootNode({
+                        composed: true
+                    }).addEventListener("click", (event)=>{
+                        // If the target is an ancestor of the dialog, ignore the click
+                        // (the shadow click handler should take care of anything inside
+                        // the target that's not the dialog)
+                        if (!(event.target instanceof Node) || (0, $9d121dc88146ccd1$export$273cb3019e2f952c)(event.target, dialog)) return;
+                        this.hide();
+                    }, {
+                        signal: abortController.signal
+                    });
+                } else root.addEventListener("click", handleClickDirectRoot, {
                     signal: abortController.signal
                 });
                 dialog.addEventListener("close", ()=>abortController.abort(), {

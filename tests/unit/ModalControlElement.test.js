@@ -1,5 +1,7 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, beforeEach } from 'vitest';
 import ModalControlElement from '../../src/ModalControlElement.js';
+
+customElements.define('modal-control', ModalControlElement);
 
 describe('ModalControlElement', () => {
   describe('target', () => {

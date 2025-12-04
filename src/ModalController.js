@@ -1,3 +1,4 @@
+import { deepContains } from "./deepContains.js";
 import isEventInsideElement from "./isEventInsideElement.js";
 
 /**
@@ -46,17 +47,46 @@ export default class ModalController {
       );
 
       setTimeout(() => {
-        dialog.getRootNode({ composed: true }).addEventListener(
-          'click',
-          (event) => {
-            if (!(event.target instanceof Node) || dialog.contains(event.target)) {
-              return;
-            }
+        const root = dialog.getRootNode();
+        
+        /** @param {Event} event */
+        const handleClickDirectRoot = (event) => {
+          // If the click is inside the dialog, ignore it
+          if (!(event instanceof MouseEvent) || isEventInsideElement(event, dialog)) {
+            return;
+          }
 
-            this.hide();
-          },
-          { signal: abortController.signal }
-        );
+          this.hide();
+        };
+
+        if (root instanceof ShadowRoot) {
+          root.addEventListener(
+            'click',
+            handleClickDirectRoot,
+            { signal: abortController.signal }
+          );
+
+          dialog.getRootNode({ composed: true }).addEventListener(
+            'click',
+            (event) => {
+              // If the target is an ancestor of the dialog, ignore the click
+              // (the shadow click handler should take care of anything inside
+              // the target that's not the dialog)
+              if (!(event.target instanceof Node) || deepContains(event.target, dialog)) {
+                return;
+              }
+
+              this.hide();
+            },
+            { signal: abortController.signal }
+          );
+        } else {
+          root.addEventListener(
+            'click',
+            handleClickDirectRoot,
+            { signal: abortController.signal }
+          );
+        }
 
         dialog.addEventListener(
           'close',

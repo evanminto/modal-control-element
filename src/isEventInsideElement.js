@@ -1,10 +1,12 @@
+import { deepContains } from "./deepContains.js";
+
 /**
  * @param {MouseEvent}  event
  * @param {HTMLDialogElement} dialog
  * @returns {boolean}
  */
 export default function isEventInsideElement(event, dialog) {
-  const { clientX, clientY} = event;
+  const { clientX, clientY } = event;
   const target = /** @type {Node} */ (event.target);
   const { x, y, width, height } = dialog.getBoundingClientRect();
 
@@ -21,5 +23,5 @@ export default function isEventInsideElement(event, dialog) {
   }
 
   // If the target isn't the dialog itself, check that it's inside the dialog
-  return dialog.contains(target);
+  return deepContains(dialog, target);
 }
