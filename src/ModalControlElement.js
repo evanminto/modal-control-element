@@ -108,7 +108,7 @@ export default class ModalControlElement extends HTMLElement {
   /** @type {HTMLDialogElement|null} */
   get targetElement() {
     const root = /** @type {Document|ShadowRoot} */ (this.getRootNode());
-    const el = this.target ? root.getElementById(this.target) : null;
+    const el = this.target ? (root.getElementById?.(this.target) ?? null) : null;
 
     if (!(el instanceof HTMLDialogElement)) {
       return null;
