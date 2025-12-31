@@ -3,7 +3,10 @@
   "version": "0.2.9",
   "description": "Tiny, framework-agnostic, dependency-free Custom Element that turns a button into a control for a modal <dialog> element. Inspired by the Popover API.",
   "main": "src/index.js",
-  "repository": "git@github.com:evanminto/modal-control-element.git",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/evanminto/modal-control-element.git"
+  },
   "author": "Evan Minto <evan.minto@gmail.com>",
   "license": "MIT",
   "type": "module",
